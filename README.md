@@ -3,7 +3,7 @@
 > Automate conventional commits, changelogs, and semantic versioning — in seconds.
 
 [![npm version](https://img.shields.io/npm/v/gitflow-auto.svg)](https://www.npmjs.com/package/gitflow-auto)
-[![CI](https://github.com/YOUR_USERNAME/gitflow-auto/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/gitflow-auto/actions)
+[![CI](https://github.com/dabydat/gitflow-auto/actions/workflows/ci.yml/badge.svg)](https://github.com/dabydat/gitflow-auto/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Stop wasting 15 minutes a day on git busywork. `gitflow-auto` guides you through [Conventional Commits](https://www.conventionalcommits.org/), auto-generates your `CHANGELOG.md`, and calculates the right semantic version — all from the terminal.
@@ -148,9 +148,10 @@ gitflow changelog --format conventional
 
 - [x] `gitflow commit` — interactive conventional commit
 - [x] `gitflow changelog` — auto-generated changelog (3 formats)
-- [ ] `gitflow release` — full release automation (tag + push + GitHub Release) — **Pro**
-- [ ] `gitflow version` — semver bump with auto-detection — **Pro**
-- [ ] Team config sync via `.gitflowrc` — **Pro**
+- [x] `gitflow release` — full release automation (bump + changelog + tag + push + GitHub Release)
+- [x] `gitflow version` — semver bump with auto-detection from commit types
+- [ ] Team config sync via `.gitflowrc`
+- [ ] Linear / Jira issue references in commits
 
 > **Pro tier ($8/mo)** — coming soon. Early supporters get lifetime discount.
 
@@ -159,4 +160,4 @@ gitflow changelog --format conventional
 ## License
 
 MIT — free for personal use.
-Commercial license available for teams. Contact: [your@email.com]
+Commercial license available for teams.

@@ -9,7 +9,7 @@ const program = new Command();
 program
   .name('gitflow')
   .description('Automate conventional commits, changelogs, and semantic versioning')
-  .version('0.2.0');
+  .version('0.3.0');
 
 program.addCommand(commitCommand);
 program.addCommand(changelogCommand);

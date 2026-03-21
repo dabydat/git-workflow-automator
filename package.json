@@ -1,6 +1,6 @@
 {
   "name": "gitflow-auto",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Automate conventional commits, changelogs, and semantic versioning — for developers who move fast",
   "keywords": ["git", "conventional-commits", "changelog", "semver", "cli", "developer-tools"],
   "license": "MIT",

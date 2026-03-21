@@ -1,0 +1,84 @@
+---
+title: Git Workflow Automator — Feature Flow
+---
+flowchart TD
+    USER(["👨‍💻 Developer"])
+
+    USER -->|"gitflow commit"| COMMIT_START
+    USER -->|"gitflow release"| RELEASE_START
+    USER -->|"gitflow changelog"| CHANGELOG_START
+    USER -->|"gitflow version --bump"| VERSION_START
+
+    %% ── COMMIT FLOW ──────────────────────────────────
+    subgraph COMMIT ["⚡ gitflow commit"]
+        COMMIT_START["Read git status"]
+        COMMIT_START --> COMMIT_STAGED{"Staged\nchanges?"}
+        COMMIT_STAGED -->|"No"| COMMIT_ERR["❌ Error: stage files first\n(git add .)"]
+        COMMIT_STAGED -->|"Yes"| WIZARD["Prompt wizard\n(type / scope / desc)"]
+        WIZARD --> BREAKING{"Breaking\nchange?"}
+        BREAKING -->|"Yes"| FOOTER["Add BREAKING CHANGE footer"]
+        BREAKING -->|"No"| PREVIEW
+        FOOTER --> PREVIEW["Preview message\n→ confirm?"]
+        PREVIEW -->|"Cancel"| COMMIT_ABORT["🚫 Aborted"]
+        PREVIEW -->|"OK"| GIT_COMMIT["git commit -m '...'"]
+        GIT_COMMIT --> PUSH_Q{"--no-push?"}
+        PUSH_Q -->|"No"| GIT_PUSH["git push"]
+        PUSH_Q -->|"Yes"| COMMIT_DONE["✅ Committed"]
+        GIT_PUSH --> COMMIT_DONE
+    end
+
+    %% ── RELEASE FLOW ─────────────────────────────────
+    subgraph RELEASE ["🚀 gitflow release"]
+        RELEASE_START["Validate: main branch\n+ clean working tree"]
+        RELEASE_START --> VALID{"Valid?"}
+        VALID -->|"No"| RELEASE_ERR["❌ Error with fix hint"]
+        VALID -->|"Yes"| READ_COMMITS["Read commits\nsince last tag"]
+        READ_COMMITS --> CLASSIFY["Classify by type\n(feat / fix / breaking)"]
+        CLASSIFY --> BUMP_CALC["Calculate semver bump\nbreaking→major | feat→minor | fix→patch"]
+        BUMP_CALC --> UPDATE_PKG["Update package.json version"]
+        UPDATE_PKG --> GEN_CHANGELOG["Generate CHANGELOG.md"]
+        GEN_CHANGELOG --> RELEASE_COMMIT["git commit\nchore(release): vX.Y.Z"]
+        RELEASE_COMMIT --> TAG["git tag vX.Y.Z"]
+        TAG --> PUSH_TAGS["git push && git push --tags"]
+        PUSH_TAGS --> GH_Q{"gh CLI\navailable?"}
+        GH_Q -->|"Yes"| GH_RELEASE["gh release create\nwith release notes"]
+        GH_Q -->|"No"| RELEASE_DONE
+        GH_RELEASE --> RELEASE_DONE["✅ Released vX.Y.Z"]
+    end
+
+    %% ── CHANGELOG FLOW ───────────────────────────────
+    subgraph CHANGELOG ["📝 gitflow changelog"]
+        CHANGELOG_START["Parse --from / --to / --format"]
+        CHANGELOG_START --> FETCH_LOGS["git log --pretty=format\nbetween range"]
+        FETCH_LOGS --> PARSE["Parse conventional commits\n(type / scope / breaking)"]
+        PARSE --> STRATEGY{"Format\nstrategy"}
+        STRATEGY -->|"keepachangelog"| FMT_KAC["Format: Keep a Changelog"]
+        STRATEGY -->|"conventional"| FMT_CONV["Format: Conventional"]
+        STRATEGY -->|"github"| FMT_GH["Format: GitHub markdown"]
+        FMT_KAC & FMT_CONV & FMT_GH --> WRITE_FILE["Write CHANGELOG.md"]
+        WRITE_FILE --> CL_DONE["✅ CHANGELOG updated"]
+    end
+
+    %% ── VERSION FLOW ─────────────────────────────────
+    subgraph VERSION ["🔢 gitflow version"]
+        VERSION_START["Read current version\nfrom package.json"]
+        VERSION_START --> BUMP_Q{"--bump\nprovided?"}
+        BUMP_Q -->|"No"| AUTO_DETECT["Auto-detect from\ncommits since last tag"]
+        BUMP_Q -->|"Yes"| APPLY_BUMP
+        AUTO_DETECT --> APPLY_BUMP["Apply bump\n(semver)"]
+        APPLY_BUMP --> PREVIEW_V["Preview: vOLD → vNEW"]
+        PREVIEW_V --> PREVIEW_Q{"--preview\nonly?"}
+        PREVIEW_Q -->|"Yes"| V_DONE["✅ Preview shown"]
+        PREVIEW_Q -->|"No"| WRITE_PKG["Update package.json"]
+        WRITE_PKG --> V_DONE
+    end
+
+    %% ── STYLES ───────────────────────────────────────
+    style USER fill:#0D47A1,color:#fff
+    style COMMIT_DONE fill:#1B5E20,color:#fff
+    style RELEASE_DONE fill:#1B5E20,color:#fff
+    style CL_DONE fill:#1B5E20,color:#fff
+    style V_DONE fill:#1B5E20,color:#fff
+    style COMMIT_ERR fill:#B71C1C,color:#fff
+    style RELEASE_ERR fill:#B71C1C,color:#fff
+    style COMMIT_ABORT fill:#E65100,color:#fff

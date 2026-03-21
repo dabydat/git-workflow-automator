@@ -1,0 +1,46 @@
+---
+title: git-workflow-automator — Code Graph
+---
+graph TD
+  subgraph ENTRY ["Entry"]
+    INDEX["src/index.ts\nCommander root"]
+  end
+
+  subgraph COMMANDS ["Commands"]
+    CMD_COMMIT["src/commands/commit.ts\ncommitCommand"]
+    CMD_CHANGELOG["src/commands/changelog.ts\nchangelogCommand"]
+  end
+
+  subgraph CORE ["Core Modules"]
+    CC["src/core/conventional-commits.ts\nparseCommit · formatCommit\nisValidCommitMessage · isValidDescription\nCOMMIT_TYPES · COMMIT_TYPE_LABELS"]
+    GIT["src/core/git.ts\nGitAdapter interface\nSimpleGitAdapter (Adapter)\ncreateGitAdapter()"]
+    SEMVER["src/core/semver.ts\ndetermineBump · applyBump\nisValidVersion · cleanVersion"]
+    CLGEN["src/core/changelog-generator.ts\ngenerateChangelog (Strategy)\nprependToChangelog\nKeepAChangelog · Conventional · GitHub"]
+  end
+
+  subgraph PROMPTS ["Prompts"]
+    WIZARD["src/prompts/commit-wizard.ts\nrunCommitWizard()"]
+  end
+
+  subgraph UI ["UI"]
+    OUTPUT["src/ui/output.ts\nCLIError · success · error\ninfo · warn · spinner\nhandleCLIError"]
+  end
+
+  INDEX --> CMD_COMMIT
+  INDEX --> CMD_CHANGELOG
+
+  CMD_COMMIT --> GIT
+  CMD_COMMIT --> CC
+  CMD_COMMIT --> WIZARD
+  CMD_COMMIT --> OUTPUT
+
+  CMD_CHANGELOG --> GIT
+  CMD_CHANGELOG --> CC
+  CMD_CHANGELOG --> CLGEN
+  CMD_CHANGELOG --> OUTPUT
+
+  WIZARD --> CC
+  GIT --> OUTPUT
+
+  CC -.->|"types"| SEMVER
+  CC -.->|"types"| CLGEN

@@ -5,6 +5,7 @@ import { createGitAdapter } from '../core/git.js';
 import { parseCommit } from '../core/conventional-commits.js';
 import { determineBump, applyBump, cleanVersion, type BumpType } from '../core/semver.js';
 import { success, info, warn, handleCLIError, CLIError } from '../ui/output.js';
+import { checkProLicense, ProRequiredError } from '../core/license.js';
 
 const VALID_BUMPS: BumpType[] = ['major', 'minor', 'patch'];
 
@@ -19,8 +20,12 @@ export const versionCommand = new Command('version')
   .option('--preview', 'Show next version without applying it')
   .action(async (opts: VersionOptions) => {
     try {
+      checkProLicense();
       await runVersionAction(opts);
     } catch (err) {
+      if (err instanceof ProRequiredError) {
+        handleCLIError(Object.assign(new Error(err.message), { suggestion: err.suggestion }));
+      }
       handleCLIError(err);
     }
   });

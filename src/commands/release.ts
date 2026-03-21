@@ -7,6 +7,7 @@ import { parseCommit } from '../core/conventional-commits.js';
 import { determineBump, applyBump, cleanVersion } from '../core/semver.js';
 import { generateChangelog, prependToChangelog } from '../core/changelog-generator.js';
 import { success, info, warn, spinner, handleCLIError, CLIError } from '../ui/output.js';
+import { checkProLicense, ProRequiredError } from '../core/license.js';
 
 interface ReleaseOptions {
   dryRun: boolean;
@@ -21,8 +22,13 @@ export const releaseCommand = new Command('release')
   .option('--no-github', 'Skip creating a GitHub Release')
   .action(async (opts: ReleaseOptions) => {
     try {
+      const license = checkProLicense();
+      info(`Pro license active — ${license.email} (expires ${license.expiry})`);
       await runReleaseAction(opts);
     } catch (err) {
+      if (err instanceof ProRequiredError) {
+        handleCLIError(Object.assign(new Error(err.message), { suggestion: err.suggestion }));
+      }
       handleCLIError(err);
     }
   });

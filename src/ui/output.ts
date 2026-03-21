@@ -46,10 +46,16 @@ export function spinner(text: string): Ora {
 export function handleCLIError(err: unknown): never {
   if (err instanceof CLIError) {
     error(err.message, err.suggestion);
+  } else if (isErrorWithSuggestion(err)) {
+    error(err.message, err.suggestion);
   } else if (err instanceof Error) {
     error(err.message);
   } else {
     error('An unexpected error occurred');
   }
   process.exit(1);
+}
+
+function isErrorWithSuggestion(err: unknown): err is Error & { suggestion: string } {
+  return err instanceof Error && 'suggestion' in err && typeof (err as Record<string, unknown>)['suggestion'] === 'string';
 }

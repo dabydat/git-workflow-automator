@@ -12,7 +12,7 @@
  * Store it in: ~/gitflow-private.pem
  */
 
-const { createSign } = require('crypto');
+const { sign } = require('crypto');
 
 const email = process.argv[2];
 const days = parseInt(process.argv[3] ?? '365', 10);
@@ -36,9 +36,7 @@ const expiryStr = expiry.toISOString().slice(0, 10);
 const payload = `${email}:${expiryStr}`;
 const payloadB64 = Buffer.from(payload).toString('base64url');
 
-const sign = createSign('ed25519');
-sign.update(payload);
-const signature = sign.sign(privateKey);
+const signature = sign(null, Buffer.from(payload), privateKey);
 const signatureB64 = signature.toString('base64url');
 
 const licenseKey = `GITFLOWPRO-${payloadB64}.${signatureB64}`;
